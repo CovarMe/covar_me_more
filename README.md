@@ -7,6 +7,7 @@ Note: Require _npm_ and _pip_
 (sudo) pip install -r requirements.txt
 (sudo) npm i -g bower
 bower install
+cd bekk_filter/C && R CMD SHLIB bekk_log_lik.c
 ```
 
 ### Flask (Web Framework)
