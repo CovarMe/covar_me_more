@@ -2,8 +2,10 @@
 # routes in cvapp
 
 import string, os
+import pandas as pd
 from flask import render_template, flash
-from datamodels import *
+
+data = pd.read_csv('stock_data.csv')
 
 if os.environ.get('PRESENTATION') != None:
     with open(os.environ.get('PRESENTATION')) as f:
@@ -20,4 +22,5 @@ def show_allocation_form():
 def show_allocated_portfolio(form):
     time_horizon = form['horizon']
     tickers = form['ticker_selection'].split(',')
+    print(tickers)
     return render_template('index.html')
