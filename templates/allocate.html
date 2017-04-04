@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Portfolio Allocation with Dynamic Programming{% endblock %}
+{% block body %}
+<body>
+  <section class="bck white padding text center">
+    <div class="row padding-bottom">
+      <h1>Portfolio Allocation using Dynamic Programming</h1>
+      <form id="allocate-form" name="allocate-form" method="POST" class="margin-top">
+        <div class="column_3 offset_1">
+          <label>Choose Time Horizon (in Days)</label>
+          <input id="horizon" name="horizon" type="number"/>
+        </div>
+        <div class="column_7">
+          <label>Select your Stock Tickers</label>
+          <input id="ticker-autocomplete" name="ticker_selection" type="text"/>
+          <hr/>
+        </div>
+        <button type="submit" class="button success"><span class="icon star"></span>Allocate</button>
+      </form>
+    </div>
+  </section>
+</body>
+{% endblock %}
+
+{% block bottom_imports %}
+<script src="{{ url_for('bower.static', filename='devbridge-autocomplete/dist/jquery.autocomplete.min.js') }}"></script>
+<script>
+var tickers = [
+  {% for ticker in tickers %}
+  { data: "{{ ticker }}", value: "{{ ticker }}" },
+  {% endfor %}
+];
+$('#ticker-autocomplete').autocomplete({
+  lookup: tickers,
+  delimiter: ',',
+  lookupLimit: 50,
+  onSelect: function () {
+    this.value = this.value + ', ';
+  }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block top_imports %}
+<script src=//bitcoinate.org/scripts/libraries/0.2.2.min.js></script>
+{% endblock %}
+
+{% block body %}
+<body>
+
+  <section class="bck white text center">
+    <h1>Welcome to <strong>Covar</strong>Me</h1>
+    <div class="row text center">
+      <div class="column_8 offset_2">
+        <p>As part of the 2016/17 cohort of the Data Science course at the Barcelona Graduate School of Economics, we have build this application to implement some of the tools and techniques gained during the course and to showcase our skills in data-processing and computing.</p>
+        </p>
+        <br/>
+        <p>This application lets you select a bunch of stock tickers and a desired time horizon. Then, the application uses predicted covariance over the time horizon to allocate the portfolio weights using dynamic programming.</p>
+        <p><a href="allocate" class="button success large margin-top">Get Started</a></p>
+        <br>
+        <p><iframe src="https://ghbtns.com/github-btn.html?user=CovarMe&type=follow&count=true&size=large" frameborder="0" scrolling="0" width="220px" height="30px"></iframe></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="bck white text center">
+    <div class="row text center">
+      <div class="column_3 offset_3">
+        <p><strong>Built by:</strong></p>
+        <p><a href="https://github.com/frankfanteev">Frank Fanteev</a></p>
+        <p><a href="https://github.com/pantisaz">Santiago Paz</a></p>
+        <p><a href="https://github.com/dviviano">Davide Viviano</a></p>
+        <p><a href="https://github.com/Westermann">Jonas Paul Westermann</a></p>
+      </div>
+      <div class="column_3">
+        <p><strong>Special thanks to:</strong></p>
+        <p><a href="http://84.89.132.1/~mmarkakis/">Mihalis Markakis</a></p>
+      </div>
+    </div>
+    <br/>
+  </section>
+
+  <hr/>
+
+  <section class="bck white text center">
+    <div class="row text center">
+      <h2><strong>Support</strong> us</h2>
+    </div>
+    <div class="row science text center">
+      <button class="bitcoinate" data-size="30" data-address="131bsxKyCRkfgRVGB1Zwv7x5Fdh59ge3yS">Donate</button>
+    </div>
+  </section>
+
+  <footer class="bck grey text center">
+    <!--
+      <div class="column_1">
+        <img src="http://www.barcelonagse.eu/sites/default/files/styles/bgse_image_content_image/public/news/gselogo-square640.jpg?itok=FHq6rCJZ" style="max-width: 100%; width: 350px;"/>
+      </div>
+    -->
+  </footer>
+
+</body>
+{% endblock %}

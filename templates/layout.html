@@ -1,0 +1,45 @@
+<!doctype html>
+<!-- ========================== HEADER ========================== -->
+<header class="bck margin-top margin-bottom">
+
+  <title>Covar Me! - {% block title %}{% endblock %}</title>
+
+  <!-- All the javascript and css shit that gets loaded on the top -->
+  <link rel=stylesheet type=text/css href="{{ url_for('bower.static', filename='tuktuk/tuktuk.css') }}">
+  <link rel=stylesheet type=text/css href="{{ url_for('bower.static', filename='tuktuk/tuktuk.grid.css') }}">
+  <link rel=stylesheet type=text/css href="{{ url_for('bower.static', filename='tuktuk/tuktuk.icons.css') }}">
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+  {% block top_imports %}{% endblock %}
+
+  <div class="row">
+    <div class="column_3">
+      <a href="/"><img src="http://emojis.slackmojis.com/emojis/images/1471119460/996/shuffle_party_parrot.gif?1471119460" class="logo on-left"/></a>
+      <h2><strong>&nbsp;&nbsp;Covar</strong>Me</h1>
+    </div>
+  </div>
+</header>
+
+
+<div class=page>
+  <section class="bck white padding text center">
+    <div class="row padding-bottom">
+      {% with messages = get_flashed_messages(with_categories = true) %}
+      {% if messages %}
+      <ul class=flashes>
+        {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% endwith %}
+    </div>
+  </section>
+  {% block body %}{% endblock %}
+</div>
+
+<footer class="bck light center">
+</footer>
+
+<!-- All the javascript and css shit that gets loaded on the bottom -->
+<script src="{{ url_for('bower.static', filename='jquery/dist/jquery.min.js') }}"></script>
+{% block bottom_imports %}{% endblock %}
