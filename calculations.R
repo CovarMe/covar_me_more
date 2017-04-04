@@ -80,12 +80,12 @@ DP_function <- function(disc_returns, covariances, t, risk_free, prob){
 ## Columns: 2:79 -> all columns: pass a vector
 
 data <- final
-function_make_everything_work<-function(final,t, columns = c(2:79), 
+function_make_everything_work<-function(final,t, columns = c(1:78), 
                                         static_cov = T, risk_free = 0.5/90, alpha){
 
 
 ## Compute the covariance matrix using 2 factors
-pmatrix <- final[,-c(1, dim(final)[2])]
+pmatrix <- final #[,-c(1, dim(final)[2])]
 pmatrix <- apply(pmatrix, c(1,2), as.numeric)
 pmatrix_s <- scale(pmatrix)
 princ <- prcomp(pmatrix_s)
