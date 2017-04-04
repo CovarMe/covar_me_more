@@ -1,37 +1,39 @@
 
 
-##############################################################################################
-################################ Library #####################################################
-##############################################################################################
-
 ### Create all possible states
-
-## Use Bekk function from C - Jonas/Nandan source code
 dyn.load('./C/bekk_log_lik.so')
 source('./R/bekk_model.R')
 
 create_states_returns <- function(t,covariance, d , u, p1, p2, beta_0, beta_1, beta_2, PC1_2){
-  init <- list(NULL, c(PC1_2[dim(PC1_2)[1],1 ], PC1_2[dim(PC1_2)[1],2]))
+  init <- list(c(PC1_2[dim(PC1_2)[1],1 ], PC1_2[dim(PC1_2)[1],2]))
   returns <- NULL
   for(i in 1:t){
     
-    for(j in 2:length(init)){
-      init2 <- list()
+    init2 <- list()
+    for(j in 1:length(init)){
+     
       return_up_up <- beta_0 + beta_1*(init[[j]][1] + u[1]) + beta_2*(init[[j]][2] + u[2])
       return_up_down <- beta_0 + beta_1*(init[[j]][1] + u[1]) + beta_2*(init[[j]][2] + d[2])
       return_down_up <- beta_0 + beta_1*(init[[j]][1] + d[1]) + beta_2*(init[[j]][2] + u[2])
       return_down_down <- beta_0 + beta_1*(init[[j]][1] + d[1]) + beta_2*(init[[j]][2] + d[2])
-      returns <- cbind(returns , return_up_up, return_up_down, return_down_up, return_down_down) 
-      init2 <- list(init2, c(init[[j]][1] + u[1], init[[j]][2] + u[2]), 
-                    c(init[[j]][1] + u[1], init[[j]][2] + d[2]), 
-                    c(init[[j]][1] + d[1], init[[j]][2] + u[2]), 
-                    c(init[[j]][1] + d[1], init[[j]][2] + d[2]))}
+      returns <- cbind(returns , return_up_up, return_up_down, return_down_up, return_down_down)
+      ii <- length(init2)
+      init2[[ii + 1]] <- c(init[[j]][1] + u[1], init[[j]][2] + u[2])
+      init2[[ii + 2]] <- c(init[[j]][1] + u[1], init[[j]][2] + d[2])
+      init2[[ii + 3]]   <- c(init[[j]][1] + d[1], init[[j]][2] + u[2]) 
+      init2[[ii+4]]   <- c(init[[j]][1] + d[1], init[[j]][2] + d[2])}
+    
+
     init <- init2
   }
   returns
 }
 
 
+##### Create states with BEKK - TO BE DONE !!!
+
+create_states_BEKK <- function(returns){
+}
 
 ### Find the best weight allocation for one period problem
 
@@ -47,16 +49,16 @@ optimize_portfolio <- function(ret, covariance,risk_free, alpha){
 
 
 
-DP_function <- function(disc_returns, covariances, t, risk_free, prob){
+DP_function <- function(disc_returns, covariances, t, risk_free, prob, alpha){
   if(t == 1){
     expected_ret <- prob[1]*prob[2]*disc_returns[,1] + prob[1]*(1-prob[2])*disc_returns[,2] + 
       (1 - prob[1])*prob[2]*disc_returns[,3] + (1-prob[1])*(1-prob[2])*disc_returns[,4]
-    weights <-  optimize_portfolio(expected_ret, covariances[[1]], risk_free )
+    weights <-  optimize_portfolio(expected_ret, covariances[[1]], risk_free, alpha= alpha )
     t(as.matrix(weights))
   } else{
-    seq <- c(0,4**c(1:t))
-    vec1 <- (seq[length(seq) - 1] + 1):dim(disc_returns)[2]
-    vec2 <- (seq[length(seq) - 2] + 1):(seq[length(seq) - 1])
+    seq <- c(0,4**c(1:t)) 
+    vec1 <- (sum(seq[1:(length(seq) - 1)]) + 1):dim(disc_returns)[2]
+    vec2 <- (sum(seq[1:(length(seq) - 2)]) + 1):sum(seq[1:(length(seq) - 1)])
     rt <- disc_returns[,vec1]
     covar <- covariances[vec1]
     weights <- matrix(NA, nrow=dim(disc_returns)[1], ncol=length(vec2))
@@ -64,11 +66,11 @@ DP_function <- function(disc_returns, covariances, t, risk_free, prob){
     for(i in 1:length(vec2)){
       expected_ret <- prob[1]*prob[2]*rt[,k] + prob[1]*(1-prob[2])*rt[,k+1] + 
         (1 - prob[1])*prob[2]*rt[,k+2] + (1-prob[1])*(1-prob[2])*rt[,k+3]
-      weights[,i] <-  optimize_portfolio(expected_ret, covar[[k]], risk_free )
+      weights[,i] <-  optimize_portfolio(expected_ret, covar[[k]], 0.05/90, alpha=1 )
       k <- k + 4
     }
     ww <- cbind(weights, do.call("DP_function", 
-                                 list(disc_returns[,-vec1]*(1 + risk_free),covariances[-vec1], t-1, risk_free, prob )))
+                                 list(disc_returns[,-vec1]*(1 + risk_free),covariances[-vec1], t-1, risk_free, prob,alpha )))
     ww
   }
 }
@@ -81,7 +83,7 @@ DP_function <- function(disc_returns, covariances, t, risk_free, prob){
 
 data <- final
 function_make_everything_work<-function(final,t, columns = c(1:78), 
-                                        static_cov = T, risk_free = 0.5/90, alpha){
+                                        static_cov = T, risk_free = 0.5/90, alpha = 1){
 
 
 ## Compute the covariance matrix using 2 factors
@@ -138,7 +140,7 @@ if(static_cov){
 
 
 disc_returns <- create_states_returns(t,Full_cov, d , u, prob[1], prob[2], beta_0=beta_0, beta_1 = beta_1, beta_2 = beta_2, PC1_2 = PC1_2)
-cc <- DP_function(disc_returns , covariances, t - 1, risk_free, prob )
+cc <- DP_function(disc_returns , covariances, t - 1, risk_free, prob , alpha)
 
 ## returns the weights to be selected today
 cc[,dim(cc)[2]]
