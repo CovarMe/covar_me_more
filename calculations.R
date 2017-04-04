@@ -1,11 +1,14 @@
 
 
-
 ##############################################################################################
 ################################ Library #####################################################
 ##############################################################################################
 
 ### Create all possible states
+
+## Use Bekk function from C - Jonas/Nandan source code
+dyn.load('./C/bekk_log_lik.so')
+source('./R/bekk_model.R')
 
 create_states_returns <- function(t,covariance, d , u, p1, p2, beta_0, beta_1, beta_2, PC1_2){
   init <- list(NULL, c(PC1_2[dim(PC1_2)[1],1 ], PC1_2[dim(PC1_2)[1],2]))
@@ -29,16 +32,12 @@ create_states_returns <- function(t,covariance, d , u, p1, p2, beta_0, beta_1, b
 }
 
 
-##### Create states with BEKK - TO BE DONE !!!
-
-create_states_BEKK <- function(returns){
-}
 
 ### Find the best weight allocation for one period problem
 
-optimize_portfolio <- function(ret, covariance,risk_free){
+optimize_portfolio <- function(ret, covariance,risk_free, alpha){
   lambda <- sqrt(t(ret - rep(risk_free, length(ret)))%*%solve(covariance)%*%
-                   (ret - rep(risk_free, length(ret))))
+                   (ret - rep(risk_free, length(ret)))/alpha)
   lambda <- as.numeric(lambda)
   weights <- t(ret - rep(risk_free, length(ret)))%*%solve(covariance)/lambda
   weights
@@ -80,7 +79,9 @@ DP_function <- function(disc_returns, covariances, t, risk_free, prob){
 ## Pass final file as data, pass t, pass columns of interest (from 2 to 78)
 ## Columns: 2:79 -> all columns: pass a vector
 
-function_make_everything_work<-function(final,t, columns = c(2:79), static_cov = T, risk_free = 0.5/90){
+data <- final
+function_make_everything_work<-function(final,t, columns = c(2:79), 
+                                        static_cov = T, risk_free = 0.5/90, alpha){
 
 
 ## Compute the covariance matrix using 2 factors
@@ -121,20 +122,24 @@ prob <- prob/dim(PC1_2)[1]
 u <- apply(PC1_2, 2, function(x)(mean(x[x > 0])))
 d <- apply(PC1_2, 2, function(x)(mean(x[x < 0])))
 
-
-## TO BE CHANGED (PUT BEKK)  ####################################################################
-
 z <- 4**c(1:t)
 ## Constant covariances
 if(static_cov){
   covariances <- list(Full_cov)[rep(1, sum(z))]
-} else { covariances <- scalar.bekk.fit(as.matrix(final[-c(1, dim(final)[2])]),opts=list(fit = TRUE,
-                                                                     lags = 3))}
+} else { 
+ pp <- scalar.bekk.fit(as.matrix(final[-c(1, dim(final)[2])]),opts=list(fit = TRUE,
+                                                                     lags = 3))
+                       param <- pp$param
+ ## Bekk Formula
+ cov1 <- (1 - sum(param))*Full_cov + param[1]*t(pmatrix_s)%*%diag(seq(1:dim(final)[1]))%*%pmatrix_s + 
+         param[2]*cov(pmatrix)
+ covariances <- list(Full_cov)[rep(1, sum(z))]
+}
 
 
 disc_returns <- create_states_returns(t,Full_cov, d , u, prob[1], prob[2], beta_0=beta_0, beta_1 = beta_1, beta_2 = beta_2, PC1_2 = PC1_2)
 cc <- DP_function(disc_returns , covariances, t - 1, risk_free, prob )
 
 ## returns the weights to be selected today
-cc
+cc[,dim(cc)[2]]
 }
