@@ -16,15 +16,14 @@ from_date = from_date.strftime("%Y-%m-%d")
 
 print(from_date,today)
 
-stocks = list()
-for ticker in source: 
-    print(ticker)
-    try: 
-        ticker_info = Share(ticker).get_historical(from_date,today)
-        stocks += [x['Symbol']+','+x['Date']+','+x['Close'] for x in ticker_info] 
-    except: 
-        print("Couldn't retrieve info for " + ticker + " from Yahoo.")
-        continue
+ticker_info = Share(source[0]).get_historical(from_date,today)
+stock = [(x['Date'],x['Close']) for x in ticker_info] 
+stocks = pd.DataFrame(stock,columns=['Date',source[0]]).set_index('Date')
+for ticker in source[1:10]: 
+    ticker_info = Share(ticker).get_historical(from_date,today)
+    stock = [(x['Date'],x['Close']) for x in ticker_info] 
+    stock = pd.DataFrame(stock,columns=['Date',ticker]).set_index('Date')
+    stocks = pd.concat([stocks,stock], axis=1)
+    print(stocks)
 
-my_df = pd.DataFrame(stocks)
-my_df.to_csv('stock_data.csv', index=False, header=False)
+stocks.to_csv('stock_data.csv')
