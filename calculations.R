@@ -92,7 +92,7 @@ princ <- prcomp(pmatrix_s)
 PC1_2 <- predict(princ, newdata=pmatrix_s)[, 1:2]
   
 ## Select the relevant columns
-final <- final[,c(1,columns, dim(final)[2])]
+final <- final[,columns]
 
 
 ## Wolf - Ledoit covariance matrix
