@@ -80,7 +80,6 @@ DP_function <- function(disc_returns, covariances, t, risk_free, prob){
 ## Pass final file as data, pass t, pass columns of interest (from 2 to 78)
 ## Columns: 2:79 -> all columns: pass a vector
 
-data <- final
 function_make_everything_work<-function(final,t, columns = c(2:79), static_cov = T, risk_free = 0.5/90){
 
 
