@@ -19,7 +19,7 @@ print(from_date,today)
 ticker_info = Share(source[0]).get_historical(from_date,today)
 stock = [(x['Date'],x['Close']) for x in ticker_info] 
 stocks = pd.DataFrame(stock,columns=['Date',source[0]]).set_index('Date')
-for ticker in source[1:10]: 
+for ticker in source[1:40]: 
     ticker_info = Share(ticker).get_historical(from_date,today)
     stock = [(x['Date'],x['Close']) for x in ticker_info] 
     stock = pd.DataFrame(stock,columns=['Date',ticker]).set_index('Date')
