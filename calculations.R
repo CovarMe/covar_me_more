@@ -1,17 +1,21 @@
 
 
+##############################################################################################
+################################ Library #####################################################
+##############################################################################################
+
 ### Create all possible states
-dyn.load('bekk_filter/C/bekk_log_lik.so')
-source('bekk_filter/R/bekk_model.R')
+dyn.load('./C/bekk_log_lik.so')
+source('./R/bekk_model.R')
 
 create_states_returns <- function(t,covariance, d , u, p1, p2, beta_0, beta_1, beta_2, PC1_2){
   init <- list(c(PC1_2[dim(PC1_2)[1],1 ], PC1_2[dim(PC1_2)[1],2]))
   returns <- NULL
   for(i in 1:t){
-
+    
     init2 <- list()
     for(j in 1:length(init)){
-
+     
       return_up_up <- beta_0 + beta_1*(init[[j]][1] + u[1]) + beta_2*(init[[j]][2] + u[2])
       return_up_down <- beta_0 + beta_1*(init[[j]][1] + u[1]) + beta_2*(init[[j]][2] + d[2])
       return_down_up <- beta_0 + beta_1*(init[[j]][1] + d[1]) + beta_2*(init[[j]][2] + u[2])
@@ -22,7 +26,7 @@ create_states_returns <- function(t,covariance, d , u, p1, p2, beta_0, beta_1, b
       init2[[ii + 2]] <- c(init[[j]][1] + u[1], init[[j]][2] + d[2])
       init2[[ii + 3]]   <- c(init[[j]][1] + d[1], init[[j]][2] + u[2]) 
       init2[[ii+4]]   <- c(init[[j]][1] + d[1], init[[j]][2] + d[2])}
-
+    
 
     init <- init2
   }
@@ -39,7 +43,7 @@ create_states_BEKK <- function(returns){
 
 optimize_portfolio <- function(ret, covariance,risk_free, alpha){
   lambda <- sqrt(t(ret - rep(risk_free, length(ret)))%*%solve(covariance)%*%
-                 (ret - rep(risk_free, length(ret)))/alpha)
+                   (ret - rep(risk_free, length(ret)))/alpha)
   lambda <- as.numeric(lambda)
   weights <- t(ret - rep(risk_free, length(ret)))%*%solve(covariance)/lambda
   weights
@@ -81,6 +85,7 @@ DP_function <- function(disc_returns, covariances, t, risk_free, prob, alpha){
 ## Pass final file as data, pass t, pass columns of interest (from 2 to 78)
 ## Columns: 2:79 -> all columns: pass a vector
 
+data <- final
 function_make_everything_work<-function(final,t, 
                                         static_cov = T, risk_free = 0.5/90, alpha = 1){
 
@@ -96,51 +101,51 @@ PC1_2 <- predict(princ, newdata=pmatrix_s)[, 1:2]
 #final <- final[,columns]
 
 
-  ## Wolf - Ledoit covariance matrix
+## Wolf - Ledoit covariance matrix
 
-  beta_0 <- beta_1 <- beta_2 <- res_var <- rep(NA, dim(pmatrix)[2])
+beta_0 <- beta_1 <- beta_2 <- res_var <- rep(NA, dim(pmatrix)[2])
 
-  for(i in 1:dim(pmatrix)[2]){
-    reg <- lm(pmatrix[,i] ~ PC1_2)
-    beta_0[i] <- coef(reg)[1]
-    beta_1[i] <- coef(reg)[2]
-    beta_2[i] <- coef(reg)[3]
-    res <- pmatrix[,i]  - predict(reg)
-    res_var[i] <- var(res)
-  }
+for(i in 1:dim(pmatrix)[2]){
+  reg <- lm(pmatrix[,i] ~ PC1_2)
+  beta_0[i] <- coef(reg)[1]
+  beta_1[i] <- coef(reg)[2]
+  beta_2[i] <- coef(reg)[3]
+  res <- pmatrix[,i]  - predict(reg)
+  res_var[i] <- var(res)
+}
 
-  F_matrix <- var(PC1_2[,1])*beta_1%*%t(beta_1) + var(PC1_2[,2])*beta_2%*%t(beta_2) + diag(res_var) 
-  Cov_matrix <- cov(pmatrix)
+F_matrix <- var(PC1_2[,1])*beta_1%*%t(beta_1) + var(PC1_2[,2])*beta_2%*%t(beta_2) + diag(res_var) 
+Cov_matrix <- cov(pmatrix)
 
-  Full_cov <- 0.7*F_matrix + 0.3*Cov_matrix
-
-
-
-  ## Compute the empirical probabilities of going up and down
-
-  prob <- apply(PC1_2, 2, function(x)(sum(x > 0)))
-  prob <- prob/dim(PC1_2)[1]
-  u <- apply(PC1_2, 2, function(x)(mean(x[x > 0])))
-  d <- apply(PC1_2, 2, function(x)(mean(x[x < 0])))
-
-  z <- c(1:t)
-  ## Constant covariances
-  if(static_cov){
-    covariances <- list(Full_cov)[rep(1, sum(z))]
-  } else { 
-    pp <- scalar.bekk.fit(as.matrix(final[-c(1, dim(final)[2])]),opts=list(fit = TRUE,
-                                                                           lags = 3))
-    param <- pp$param
-    ## Bekk Formula
-    cov1 <- (1 - sum(param))*Full_cov + param[1]*t(pmatrix_s)%*%diag(seq(1:dim(final)[1]))%*%pmatrix_s + 
-      param[2]*cov(pmatrix)
-    covariances <- list(Full_cov)[rep(1, sum(z))]
-  }
+Full_cov <- 0.7*F_matrix + 0.3*Cov_matrix
 
 
-  disc_returns <- create_states_returns(t,Full_cov, d , u, prob[1], prob[2], beta_0=beta_0, beta_1 = beta_1, beta_2 = beta_2, PC1_2 = PC1_2)
-  cc <- DP_function(disc_returns , covariances, t - 1, risk_free, prob , alpha)
 
-  ## returns the weights to be selected today
-  cc[,dim(cc)[2]]
+## Compute the empirical probabilities of going up and down
+
+prob <- apply(PC1_2, 2, function(x)(sum(x > 0)))
+prob <- prob/dim(PC1_2)[1]
+u <- apply(PC1_2, 2, function(x)(mean(x[x > 0])))
+d <- apply(PC1_2, 2, function(x)(mean(x[x < 0])))
+
+z <- 4**c(1:t)
+## Constant covariances
+if(static_cov){
+  covariances <- list(Full_cov)[rep(1, sum(z))]
+} else { 
+ pp <- scalar.bekk.fit(as.matrix(final[-c(1, dim(final)[2])]),opts=list(fit = TRUE,
+                                                                     lags = 3))
+                       param <- pp$param
+ ## Bekk Formula
+ cov1 <- (1 - sum(param))*Full_cov + param[1]*t(pmatrix_s)%*%diag(seq(1:dim(final)[1]))%*%pmatrix_s + 
+         param[2]*cov(pmatrix)
+ covariances <- list(Full_cov)[rep(1, sum(z))]
+}
+
+
+disc_returns <- create_states_returns(t,Full_cov, d , u, prob[1], prob[2], beta_0=beta_0, beta_1 = beta_1, beta_2 = beta_2, PC1_2 = PC1_2)
+cc <- DP_function(disc_returns , covariances, t - 1, risk_free, prob , alpha)
+
+## returns the weights to be selected today
+cc[,dim(cc)[2]]
 }
