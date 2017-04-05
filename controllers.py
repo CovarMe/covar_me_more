@@ -3,6 +3,7 @@
 
 import string, os, rpy2
 import pandas as pd
+import numpy as np
 import pandas.rpy.common as com
 import rpy2.robjects as ro
 from flask import render_template, flash
@@ -21,15 +22,14 @@ def show_allocation_form():
                            tickers=tickers)
 
 def show_allocated_portfolio(form):
-    # time_horizon = form['horizon']
-    # selected_tickers = form['ticker_selection'].split(',')
-    time_horizon = 10
-    selected_tickers = ['MMM','AME','ABC','AES','AFL','ALK']
+    selected_tickers = form['ticker_selection'].split(',')
+    if selected_tickers[-1] == ' ':
+        selected_tickers = selected_tickers[:-1]
     data = pd.read_csv('stock_data.csv').set_index('Date').sort_index().diff()[1:]
-    ro.globalenv['data'] = com.convert_to_r_matrix(data[selected_tickers[:-1]])
-    ro.globalenv['time_horizon'] = com.convert_to_r_matrix(data)
+    print(data)
+    ro.globalenv['data'] = com.convert_to_r_matrix(data[selected_tickers])
     ro.r('source("calculations.R")')
-    ro.r('print(data)')
-    result = ro.r('function_make_everything_work(data,time_horizon)')
+    result = ro.r('function_make_everything_work(data,' + str(form['horizon']) + ')')
     return render_template('allocated.html',
-                           result=np.array(result))
+                           result=np.array(result),
+                           tickers=selected_tickers)
