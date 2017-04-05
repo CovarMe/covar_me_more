@@ -5,8 +5,8 @@
 ##############################################################################################
 
 ### Create all possible states
-dyn.load('./C/bekk_log_lik.so')
-source('./R/bekk_model.R')
+dyn.load('bekk_filter/C/bekk_log_lik.so')
+source('bekk_filter/R/bekk_model.R')
 
 create_states_returns <- function(t,covariance, d , u, p1, p2, beta_0, beta_1, beta_2, PC1_2){
   init <- list(c(PC1_2[dim(PC1_2)[1],1 ], PC1_2[dim(PC1_2)[1],2]))
