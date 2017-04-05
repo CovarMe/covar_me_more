@@ -30,7 +30,9 @@ def show_allocated_portfolio(form):
     ro.r('source("calculations.R")')
     raw = ro.r('function_make_everything_work(data,' + str(form['horizon']) + ')')
     weights = np.around(np.array(raw),2)
-    print(weights.sum())
+    result = zip(selected_tickers,weights,weights > 0)
+    rfalloc = 1 - weights.sum()
+    result.append(('Risk-Free',rfalloc,rfalloc>0))
     return render_template('allocated.html',
                            horizon=form['horizon'],  
-                           result=zip(selected_tickers,weights,weights > 0))
+                           result=result)

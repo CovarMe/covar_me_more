@@ -19,11 +19,14 @@ print(from_date,today)
 ticker_info = Share(source[0]).get_historical(from_date,today)
 stock = [(x['Date'],x['Close']) for x in ticker_info] 
 stocks = pd.DataFrame(stock,columns=['Date',source[0]]).set_index('Date')
-for ticker in source[1:40]: 
-    ticker_info = Share(ticker).get_historical(from_date,today)
-    stock = [(x['Date'],x['Close']) for x in ticker_info] 
-    stock = pd.DataFrame(stock,columns=['Date',ticker]).set_index('Date')
-    stocks = pd.concat([stocks,stock], axis=1)
-    print(stocks)
+for ticker in source[1:]: 
+    try: 
+        ticker_info = Share(ticker).get_historical(from_date,today)
+        stock = [(x['Date'],x['Close']) for x in ticker_info] 
+        stock = pd.DataFrame(stock,columns=['Date',ticker]).set_index('Date')
+        stocks = pd.concat([stocks,stock], axis=1)
+        stocks.to_csv('stock_data.csv')
+    except:
+        pass
 
 stocks.to_csv('stock_data.csv')
