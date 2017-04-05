@@ -89,6 +89,7 @@ function_make_everything_work<-function(final,t,
                                         static_cov = T, risk_free = 0.5/90, alpha = 1){
 
 data <- final
+data <- apply(data, 2, function(x)(diff(log(x))*100))
 
 ## Compute the covariance matrix using 2 factors
 pmatrix <- final #[,-c(1, dim(final)[2])]

@@ -25,7 +25,7 @@ def show_allocated_portfolio(form):
     selected_tickers = form['ticker_selection'].split(',')
     if selected_tickers[-1] == ' ':
         selected_tickers = selected_tickers[:-1]
-    data = pd.read_csv('stock_data.csv').set_index('Date').sort_index().diff()[1:]
+    data = pd.read_csv('stock_data.csv').set_index('Date').sort_index()[1:]
     ro.globalenv['data'] = com.convert_to_r_matrix(data[selected_tickers])
     ro.r('source("calculations.R")')
     raw = ro.r('function_make_everything_work(data,' + str(form['horizon']) + ')')
