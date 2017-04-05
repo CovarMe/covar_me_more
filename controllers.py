@@ -26,10 +26,11 @@ def show_allocated_portfolio(form):
     if selected_tickers[-1] == ' ':
         selected_tickers = selected_tickers[:-1]
     data = pd.read_csv('stock_data.csv').set_index('Date').sort_index().diff()[1:]
-    print(data)
     ro.globalenv['data'] = com.convert_to_r_matrix(data[selected_tickers])
     ro.r('source("calculations.R")')
-    result = ro.r('function_make_everything_work(data,' + str(form['horizon']) + ')')
+    raw = ro.r('function_make_everything_work(data,' + str(form['horizon']) + ')')
+    weights = np.around(np.array(raw),2)
+    print(weights.sum())
     return render_template('allocated.html',
-                           result=np.array(result),
-                           tickers=selected_tickers)
+                           horizon=form['horizon'],  
+                           result=zip(selected_tickers,weights,weights > 0))

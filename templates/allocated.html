@@ -2,11 +2,37 @@
 {% block title %}Portfolio Allocation with Dynamic Programming{% endblock %}
 {% block body %}
 <body>
-  <section class="bck white padding text center">
-    <div class="row padding-bottom">
-      <h1>Portfolio Allocation using Dynamic Programming</h1>
-      {{ result }}
-    </div>
-  </section>
+	<section class="bck white padding text center">
+		<div class="row padding-bottom">
+			<div class="column_10 offset_1">
+				<h1>Portfolio Allocation using Dynamic Programming</h1>
+				<br/>
+				<p>Over a horizon of {{ horizon }} trading days from today</p>
+				<br/>
+				<table class="margin-top">
+					<thead>
+						<tr>
+							<th>Company</th>
+							<th>Buy or Sell</th>
+							<th>Weight</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for tuple in result %}
+						<tr>
+							<td>{{ tuple[0] }}</td>
+							<td>{{ tuple[1] }}</td>
+							{% if tuple[2] %}
+							<td style="color:green;">Buy</td>
+							{% else %} 
+							<td style="color:red;">Sell</td>
+							{% endif %}
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</section>
 </body>
 {% endblock %}
