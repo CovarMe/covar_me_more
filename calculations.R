@@ -81,19 +81,19 @@ DP_function <- function(disc_returns, covariances, t, risk_free, prob, alpha){
 ## Pass final file as data, pass t, pass columns of interest (from 2 to 78)
 ## Columns: 2:79 -> all columns: pass a vector
 
-function_make_everything_work<-function(final,
-                                        t, 
-                                        static_cov = F, 
-                                        risk_free = 0.5/90, 
-                                        alpha = 1){
+function_make_everything_work<-function(final,t, 
+                                        static_cov = T, risk_free = 0.5/90, alpha = 1){
 
 
-  ## Compute the covariance matrix using 2 factors
-  pmatrix <- final #[,-c(1, dim(final)[2])]
-  pmatrix <- apply(pmatrix, c(1,2), as.numeric)
-  pmatrix_s <- scale(pmatrix)
-  princ <- prcomp(pmatrix_s)
-  PC1_2 <- predict(princ, newdata=pmatrix_s)[,1:2]
+## Compute the covariance matrix using 2 factors
+pmatrix <- final #[,-c(1, dim(final)[2])]
+pmatrix <- apply(pmatrix, c(1,2), as.numeric)
+pmatrix_s <- scale(pmatrix)
+princ <- prcomp(pmatrix_s)
+PC1_2 <- predict(princ, newdata=pmatrix_s)[, 1:2]
+  
+## Select the relevant columns
+#final <- final[,columns]
 
 
   ## Wolf - Ledoit covariance matrix
