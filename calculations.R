@@ -82,7 +82,7 @@ DP_function <- function(disc_returns, covariances, t, risk_free, prob, alpha){
 ## Columns: 2:79 -> all columns: pass a vector
 
 data <- final
-function_make_everything_work<-function(final,t, columns = c(1:78), 
+function_make_everything_work<-function(final,t, 
                                         static_cov = T, risk_free = 0.5/90, alpha = 1){
 
 
@@ -94,7 +94,7 @@ princ <- prcomp(pmatrix_s)
 PC1_2 <- predict(princ, newdata=pmatrix_s)[, 1:2]
   
 ## Select the relevant columns
-final <- final[,columns]
+#final <- final[,columns]
 
 
 ## Wolf - Ledoit covariance matrix
